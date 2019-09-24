@@ -1,0 +1,14 @@
+! hermit true or false
+F
+! jj schem single particle file
+vspe.dat
+! mschem single particle file
+msp.dat
+! jj scheme 1body interaction
+v1b.int
+! m scheme 1body interaction
+vm1b.int
+! jj scheme 2body interaction
+v2b.int
+! m scheme 2body interaction
+vm2b.int

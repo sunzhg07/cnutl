@@ -1,0 +1,28 @@
+np nn
+1,6
+number_int
+2
+totj
+1,0
+! 1b
+vm1b.int
+! 2b
+vm2b.int
+!3b
+vm3b.int
+! 1b
+vm1b.int
+! 2b
+vm2b.int
+!3b
+vm3b.int
+! output
+output
+! sp file
+msp.dat
+! num state
+6
+! max number_it
+200
+
+

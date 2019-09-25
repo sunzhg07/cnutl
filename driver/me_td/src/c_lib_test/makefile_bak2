@@ -1,0 +1,23 @@
+CC = g++
+PYTHON_VERSION = 3.6
+PYTHON_INC = /usr/local/Cellar/python/3.7.4/Frameworks/Python.framework/Versions/3.7/include/python3.7m
+PYTHON_CONFIG = /usr/local/Cellar/python/3.7.4/Frameworks/Python.framework/Versions/3.7/bin
+
+BOOST_INC = /usr/local/include
+BOOST_LIB = /usr/local/lib
+
+SRC = $(wildcard *.pp)
+OBJ = $(addsuffix .o, $(basename $(SRC)))
+
+# this target has to match whatever you have in BOOST_PYTHON_MODULE()
+TARGET = coupling
+
+# make this a so library -Wl,--export-dynamic
+$(TARGET).so : $(OBJ)
+	$(CC) -shared  $(OBJ) -L$(BOOST_LIB) -lboost_python37 -L$(PYTHON_CONFIG) -o $(TARGET).so
+
+%.o : %.cpp
+	$(CC) -I$(PYTHON_INC) -I$(BOOST_INC) -fPIC -o $@ -c $<
+
+clean:
+	-rm -f *.o *.so

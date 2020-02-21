@@ -25,13 +25,17 @@ program shm_test
   color=MPI_UNDEFINED
   if(h_iam==0)color=1
   key=iam
-  write(*,*)color,key
+  write(*,*)color,key,iam,h_iam
+  call mpi_barrier(MPI_COMM_WORLD,ierror)
 
 !@!  !! all threads have intenal rank 0(first threads of each node) form a new communacator
  rootcomm=MPI_COMM_NULL
   call MPI_Comm_split(MPI_COMM_WORLD,color,key,rootcomm,ierror)
   if(rootcomm==MPI_COMM_NULL)then
   write(*,*)'my root word',rootcomm,iam
+endif
+  if(rootcomm/=MPI_COMM_NULL)then
+  write(*,*)'i am root, and my root word',rootcomm,iam
 endif
 !  call MPI_Comm_rank(rootcomm,r_iam,ierror)
 !@!  call MPI_COMM_SIZE(rootcomm,nroot,ierror)

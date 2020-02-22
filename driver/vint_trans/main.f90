@@ -94,6 +94,7 @@ SUBROUTINE read_nuclear_sp_data
   end do
   
   allocate( tkin( all_orbit%total_orbits, all_orbit%total_orbits) )
+  tkin=0.d0
   
   do a=1,all_orbit%total_orbits
   do b=1,all_orbit%total_orbits
@@ -118,7 +119,8 @@ subroutine read_tbme
   real*8:: gmat,p2,hc
   integer:: ang_mom,p_parity,isospin_z
   integer:: aa,bb,cc,dd,bra,ket
-  real:: phase_ab,phase_cd,iph
+  real:: phase_ab,phase_cd
+  integer:: iph
 
 
 
@@ -271,7 +273,7 @@ subroutine generate_int
   write(20,'(2(I4,1x))')proton_data%total_orbits,neutron_data%total_orbits 
   do i=1,all_orbit%total_orbits
       if(all_orbit%itzp(i)==1)cycle
-      write(20,*)i,indx_inv(i),&
+      write(20,'(6(I4,1x))')i,indx_inv(i),&
               all_orbit%nn(i),&
               all_orbit%ll(i),&
               all_orbit%jj(i),&
@@ -279,7 +281,7 @@ subroutine generate_int
       end do
   do i=1,all_orbit%total_orbits
       if(all_orbit%itzp(i)==-1)cycle
-      write(20,*)i,indx_inv(i),&
+      write(20,'(6(I4,1x))')i,indx_inv(i),&
               all_orbit%nn(i),&
               all_orbit%ll(i),&
               all_orbit%jj(i),&
@@ -292,7 +294,7 @@ subroutine generate_int
   write(20,*) '! '
   write(20,*)all_orbit%total_orbits,'0'
   do i=1,all_orbit%total_orbits
-  write(20,*)indx_inv(i),indx_inv(i),tkin(i,i)
+  write(20,'(2(I4,1x),F13.6)')indx_inv(i),indx_inv(i),tkin(i,i)
   enddo
 
   write(20,*) '! '
@@ -311,7 +313,7 @@ subroutine generate_int
   d=lookup_pq_configs(channel)%ival(2,ket)
   cc=indx_inv(c)
   dd=indx_inv(d)
-  write(20,*)aa,bb,cc,dd,ang_mom,gmatrix(channel)%val(bra,ket)
+  write(20,'(5(I4,1x),F13.6)')aa,bb,cc,dd,ang_mom,gmatrix(channel)%val(bra,ket)
   enddo
   enddo
   enddo

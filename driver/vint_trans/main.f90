@@ -231,13 +231,16 @@ allocate(pq_configs(number_channels))
       phase_cd=iph((all_orbit%jj(c)+all_orbit%jj(d))/2+ang_mom+1)
       if(bra==ket)cycle
       gmat=0.d0
-      if(b==d)then
+      if(b==d .and. a/=c)then
               gmat= gmat+tkin(a,c)
-      elseif(a==c)then
+      endif
+      if(a==c .and. b/=d)then
               gmat= gmat+tkin(b,d)
-      elseif(b==c)then
+      endif
+      if(b==c .and. a/=d)then
               gmat= gmat+tkin(a,d)*phase_cd
-      elseif(a==d)then
+      endif
+      if(a==d .and. b/=c)then
               gmat= gmat+tkin(b,c)*phase_ab
       endif
        gmatrix(channel)%val(bra,ket)=gmatrix(channel)%val(bra,ket)+gmat

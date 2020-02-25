@@ -121,15 +121,16 @@ subroutine read_tbme
   integer:: aa,bb,cc,dd,bra,ket
   real:: phase_ab,phase_cd
   integer:: iph
+  real*8::dij,factor
 
 
 
 
   number_channels = 0
   !     loop over isospin projection
+     DO p_parity=0,1           
   DO isospin_z=-1,1 
      !     loop over parity values, here positive parity is 0, negative 1
-     DO p_parity=0,1           
         !     loop over angular momenta
         DO ang_mom=0, 60 
 
@@ -157,11 +158,11 @@ allocate(pq_configs(number_channels))
   allocate( locate_gmatchannel(0:7,-1:1, 0:1, 0:60) ) 
   number_channels = 0
   !     loop over isospin projection
-  DO isospin_z=-1,1 
+        DO ang_mom=0, 60 
      !     loop over parity values, here positive parity is 0, negative 1
      DO p_parity=0,1           
+  DO isospin_z=-1,1 
         !     loop over angular momenta
-        DO ang_mom=0, 60 
 
            
            !CALL  number_gmatrix_confs&
@@ -204,13 +205,14 @@ allocate(pq_configs(number_channels))
   open(unit=3,file=vint_file)
 
 5 READ(3,*,end=6) isospin_z,p_parity,ang_mom,aa,bb,cc,dd,gmat,p2,hc
+
    
            channel=locate_gmatchannel(0,isospin_z, p_parity, ang_mom/2)
            bra=pq_configs(channel)%ival(aa,bb)
            ket=pq_configs(channel)%ival(cc,dd)
-           if(bra*ket==0)write(*,*)isospin_z,p_parity,ang_mom,aa,bb,cc,dd,gmat,p2,hc
 
            gmatrix(channel)%val(bra,ket)=gmat-p2/dble(amass)
+           gmatrix(channel)%val(ket,bra)=gmat-p2/dble(amass)
   
   GOTO 5
 6 CONTINUE
@@ -218,32 +220,32 @@ allocate(pq_configs(number_channels))
 
   number_channels=size(gmatrix)
   do channel=1,number_channels
-           ang_mom   = quantum_numbers_ch3(number_channels,1) 
-           p_parity  = quantum_numbers_ch3(number_channels,2) 
-           isospin_z = quantum_numbers_ch3(number_channels,3) 
+           ang_mom   = quantum_numbers_ch3(channel,1) 
+           p_parity  = quantum_numbers_ch3(channel,2) 
+           isospin_z = quantum_numbers_ch3(channel,3) 
     do bra=1,size(lookup_pq_configs(channel)%ival,2)
       a=lookup_pq_configs(channel)%ival(1,bra)
       b=lookup_pq_configs(channel)%ival(2,bra)
-      phase_ab=iph((all_orbit%jj(a)+all_orbit%jj(b))/2+ang_mom+1)
+      if(pq_configs(channel)%ival(a,b)/=bra)write(*,*)'error'
     do ket=1,size(lookup_pq_configs(channel)%ival,2)
       c=lookup_pq_configs(channel)%ival(1,ket)
       d=lookup_pq_configs(channel)%ival(2,ket)
-      phase_cd=iph((all_orbit%jj(c)+all_orbit%jj(d))/2+ang_mom+1)
+      if(pq_configs(channel)%ival(c,d)/=ket)write(*,*)'error'
       if(bra==ket)cycle
       gmat=0.d0
-      if(b==d .and. a/=c)then
-              gmat= gmat+tkin(a,c)
-      endif
-      if(a==c .and. b/=d)then
-              gmat= gmat+tkin(b,d)
-      endif
-      if(b==c .and. a/=d)then
-              gmat= gmat+tkin(a,d)*phase_cd
-      endif
-      if(a==d .and. b/=c)then
-              gmat= gmat+tkin(b,c)*phase_ab
-      endif
-       gmatrix(channel)%val(bra,ket)=gmatrix(channel)%val(bra,ket)+gmat
+      factor=1.d0/2.d0
+      if(a==b)factor=factor/sqrt(2.d0)
+      if(c==d)factor=factor/sqrt(2.d0)
+
+      if(b==d .and. a/=c)gmat= gmat+tkin(a,c)*factor
+      if(a==c .and. b/=d)gmat= gmat+tkin(b,d)*factor
+      if (mod(all_orbit%jj(c)+all_orbit%jj(d)-2*ang_mom, 4)==0) factor = -factor
+      if(a==d .and. b/=c) gmat= gmat+tkin(b,c)*factor
+      if(b==c .and. a/=d) gmat= gmat+tkin(a,d)*factor
+      gmatrix(channel)%val(bra,ket)=gmatrix(channel)%val(bra,ket)+gmat
+     !@! write(1000,'(4(I2,2x),2(F13.6))')indx_inv(a),indx_inv(b),indx_inv(c),&
+     !@!   indx_inv(d),gmat,gmatrix(channel)%val(bra,ket)
+     write(1000,'(10(I2,2x),2(F13.6))')isospin_z,ang_mom,p_parity,a,b,c,d,channel,bra,ket,gmatrix(channel)%val(bra,ket),gmat
 
 
   enddo
@@ -264,45 +266,49 @@ subroutine generate_int
  implicit none
 
   integer:: channel
-  integer:: a,b,c,d,ket_dim,i
+  integer:: a,b,c,d,ket_dim,i,j
   integer:: aa,bb,cc,dd,bra,ket
-  integer:: ang_mom
+  integer:: ang_mom,ncount
   open(unit=20,file=snt_file)
   write(20,*)'! shell model interaction from this following files:'
-  write(20,*) '!', sp_file
-  write(20,*) '!', kin_file
-  write(20,*) '!', vint_file
+  write(20,*) '!', trim(sp_file)
+  write(20,*) '!', trim(kin_file)
+  write(20,*) '!', trim(vint_file)
   write(20,*) '! model space'
-  write(20,'(2(I4,1x))')proton_data%total_orbits,neutron_data%total_orbits 
+  write(20,'(2(I4,1x),2(a2,1x))')proton_data%total_orbits,neutron_data%total_orbits ,&
+  '0','0'
   do i=1,all_orbit%total_orbits
       if(all_orbit%itzp(i)==1)cycle
-      write(20,'(6(I4,1x))')i,indx_inv(i),&
+      write(20,'(5(I4,1x),a2)')indx_inv(i),&
               all_orbit%nn(i),&
               all_orbit%ll(i),&
               all_orbit%jj(i),&
-              all_orbit%itzp(i)
+              all_orbit%itzp(i),'0.'
       end do
   do i=1,all_orbit%total_orbits
       if(all_orbit%itzp(i)==-1)cycle
-      write(20,'(6(I4,1x))')i,indx_inv(i),&
+      write(20,'(5(I4,1x),a2)')indx_inv(i),&
               all_orbit%nn(i),&
               all_orbit%ll(i),&
               all_orbit%jj(i),&
-              all_orbit%itzp(i)
+              all_orbit%itzp(i),'0.'
       end do
 
 
   write(20,*) '! '
   write(20,*) '! '
   write(20,*) '! '
+
+
   write(20,*)all_orbit%total_orbits,'0'
+
   do i=1,all_orbit%total_orbits
   write(20,'(2(I4,1x),F13.6)')indx_inv(i),indx_inv(i),tkin(i,i)
   enddo
 
   write(20,*) '! '
+  ncount=0
 
-  write(20,*) 'number 1 1 0'
   do channel=1,size(gmatrix)
   ang_mom=quantum_numbers_ch3(channel,1)
   ket_dim=size(gmatrix(channel)%val,1)
@@ -316,6 +322,26 @@ subroutine generate_int
   d=lookup_pq_configs(channel)%ival(2,ket)
   cc=indx_inv(c)
   dd=indx_inv(d)
+  if(abs(gmatrix(channel)%val(bra,ket))<1E-15)cycle
+  ncount=ncount+1
+  enddo
+  enddo
+  enddo
+  write(20,*) ncount ,'0'
+  do channel=1,size(gmatrix)
+  ang_mom=quantum_numbers_ch3(channel,1)
+  ket_dim=size(gmatrix(channel)%val,1)
+  do bra=1,ket_dim
+  a=lookup_pq_configs(channel)%ival(1,bra)
+  b=lookup_pq_configs(channel)%ival(2,bra)
+  aa=indx_inv(a)
+  bb=indx_inv(b)
+  do ket=1,ket_dim
+  c=lookup_pq_configs(channel)%ival(1,ket)
+  d=lookup_pq_configs(channel)%ival(2,ket)
+  cc=indx_inv(c)
+  dd=indx_inv(d)
+  if(abs(gmatrix(channel)%val(bra,ket))<1E-15)cycle
   write(20,'(5(I4,1x),F13.6)')aa,bb,cc,dd,ang_mom,gmatrix(channel)%val(bra,ket)
   enddo
   enddo

@@ -1,14 +1,14 @@
 
-FC=mpif90 -mkl -fopenmp 
+FC=gfortran 
 #FCD=mpif90 -g -Wall -Wextra -Warray-temporaries -Wconversion -fimplicit-none -fbacktrace -ffree-line-length-0 -fcheck=all -ffpe-trap=zero,overflow,underflow -finit-real=nan -lblas -llapack -fopenmp
 FCD=mpif90 -Og -g -fbounds-check  -Wall -Wextra -ftrapv -fcheck=all  -Wuninitialized  -lblas -llapack -fopenmp
 FCV = mpif90 -mkl=parallel -g -check -heap-arrays 1024 -fltconsistency
 
 
-XLF= ${FCD}  ${INCLUDE}
+XLF= ${FC} 
 
 prg.exe: ccm_library.o ccm_modules2.o main.o
-	${XLF} ccm_library.o ccm_modules2.o main.o -o prg.exe ${LIBS}
+	${XLF} ccm_library.o ccm_modules2.o main.o -o prg.exe
 
 ccm_modules2.o: ccm_modules2.f90
 	${XLF} -c ccm_modules2.f90

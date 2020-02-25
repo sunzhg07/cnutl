@@ -119,9 +119,7 @@ subroutine read_tbme
   real*8:: gmat,p2,hc
   integer:: ang_mom,p_parity,isospin_z
   integer:: aa,bb,cc,dd,bra,ket
-  real:: phase_ab,phase_cd
-  integer:: iph
-  real*8::dij,factor
+  real*8::factor
 
 
 
@@ -243,9 +241,6 @@ allocate(pq_configs(number_channels))
       if(a==d .and. b/=c) gmat= gmat+tkin(b,c)*factor
       if(b==c .and. a/=d) gmat= gmat+tkin(a,d)*factor
       gmatrix(channel)%val(bra,ket)=gmatrix(channel)%val(bra,ket)+gmat
-     !@! write(1000,'(4(I2,2x),2(F13.6))')indx_inv(a),indx_inv(b),indx_inv(c),&
-     !@!   indx_inv(d),gmat,gmatrix(channel)%val(bra,ket)
-     write(1000,'(10(I2,2x),2(F13.6))')isospin_z,ang_mom,p_parity,a,b,c,d,channel,bra,ket,gmatrix(channel)%val(bra,ket),gmat
 
 
   enddo
@@ -266,7 +261,7 @@ subroutine generate_int
  implicit none
 
   integer:: channel
-  integer:: a,b,c,d,ket_dim,i,j
+  integer:: a,b,c,d,ket_dim,i
   integer:: aa,bb,cc,dd,bra,ket
   integer:: ang_mom,ncount
   open(unit=20,file=snt_file)

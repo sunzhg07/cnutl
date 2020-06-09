@@ -1,0 +1,43 @@
+           1           1
+ SM calculation starting..
+ # of protons and neutrons            0           2
+ # interaction files            2
+ jtot =            8
+ interaction files:
+ vm1b.int                                                                                                                
+ vm2b.int                                                                                                                
+ vm3b.int                                                                                                                
+ operator files:
+ vm1b.int                                                                                                                
+ vm2b.int                                                                                                                
+ vm3b.int                                                                                                                
+ single partitcle file
+ msp.dat                                                                                                                 
+ # of converge lanczos vectors
+          36
+ # of max lanczos iterations
+         200
+          42
+ number protons 0
+ number proton basis           1
+ number neutron states:          496
+ total dimension of hamiltonian          14
+ distribute matrix on           1 procs
+          14          14
+ Size of Hamiltonian   7.8400000000000003E-007
+ Size of Vectors   1.1311999999999999E-005
+ Starting arnoldi iteration:
+           1 th state: ( -21.648001963021510     ,  0.0000000000000000     )
+           2 th state: ( -21.482592060194904     ,  0.0000000000000000     )
+           3 th state: ( -21.160852178923228     ,  0.0000000000000000     )
+           4 th state: ( -21.115786335559299     ,  0.0000000000000000     )
+           5 th state: ( -21.057485478749829     ,  0.0000000000000000     )
+           6 th state: ( -20.823472189651131     ,  0.0000000000000000     )
+           7 th state: ( -18.846405023482220     ,  0.0000000000000000     )
+           8 th state: ( -18.395662224020604     ,  0.0000000000000000     )
+           9 th state: ( -18.391274352020762     ,  0.0000000000000000     )
+          10 th state: ( -18.275203226073366     ,  0.0000000000000000     )
+          11 th state: ( -10.727169217609589     ,  0.0000000000000000     )
+          12 th state: ( -10.604867360000000     ,  0.0000000000000000     )
+          13 th state: ( -10.575851486700190     ,  0.0000000000000000     )
+          14 th state: ( -10.464509843993444     ,  0.0000000000000000     )

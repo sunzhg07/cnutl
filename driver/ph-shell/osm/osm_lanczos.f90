@@ -57,6 +57,7 @@ subroutine no_lanc
   COMPLEX*16, DIMENSION(num_mbasis) :: lceig
   integer:: i
   call lapack_diag(haml,lcvec,lcvecl,lceig,num_mbasis)
+  write(*,*)nstate
   do i=1,nstate
     if(iam==0)write(*,*)i,'th state:',lceig(i)
   enddo

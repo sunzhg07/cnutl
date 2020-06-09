@@ -111,7 +111,6 @@ subroutine sm_basis
     enddo
     high=ishft(low,nn_orb-nn)
 
-    !write(*,*)low,high,nn
     u=low
     nn_mbasis=1
     do while((u>=low) .and.( u<high))
@@ -140,7 +139,6 @@ subroutine sm_basis
     enddo
     high=ishft(low,nn_orb-nn)
 
-    !write(*,*)low,high,nn
     u=low
     nn_mbasis=1
     mbsn(1)=low
@@ -153,11 +151,13 @@ subroutine sm_basis
       u=or(nh,no)
       nn_mbasis=nn_mbasis+1
       mbsn(nn_mbasis)=u
+
     enddo
 
     do i=1,nn_mbasis
       tp=mbsn(i)
       tmp=0
+      tmp1=0
       do j=1,nn_orb
         if(and(tp,one) ==one)then
           tmp=tmp+all_orbits%mm(j)

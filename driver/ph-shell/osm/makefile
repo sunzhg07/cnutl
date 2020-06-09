@@ -5,10 +5,10 @@ FVD=${FC} -Og -g -fbounds-check  -Wall -Wextra -ftrapv -fcheck=all  -Wuninitiali
 all = osm_module.o osm_io.o osm_int.o osm_lanczos.o osm_basis.o osm_matrix.o osm_main.o
 
 sm.exe :	${all}
-	   ${FVD} -o sm.exe ${all} ${LIBS}
+	   ${FV} -o sm.exe ${all} ${LIBS}
 
 %.o: %.f90
-	${FVD} -c $< ${LIBS}
+	${FV} -c $< ${LIBS}
 
 clean:
 	rm *.mod *.exe *.o *__genmod.f90

@@ -13,6 +13,7 @@ subroutine ini_interactions
   integer:: nconfs
   real*8:: gmat,gmat1
   !! one body interaction
+  write(*,*)tot_orbs
   allocate(vt1(tot_orbs,tot_orbs))
   vt1=0.d0
     open(unit=20,file=onebd_int)

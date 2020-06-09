@@ -213,8 +213,7 @@ read(5,*)m2b_file
         enddo
       enddo
     enddo
-
-    write(14,'(I4)')ctr
+    write(14,'(I8)')ctr
 
 
   do jt=-jmax,jmax
@@ -271,10 +270,9 @@ read(5,*)m2b_file
 
 
             jmin=max(abs(ja-jb)/2,abs(jc-jd)/2)
-            jmax=max(abs(ja+jb)/2,abs(jc+jd)/2)
-            jmin=max(jmin,jt)
-            if(jmin>jmax)cycle
+            jmax=min(abs(ja+jb)/2,abs(jc+jd)/2)
             vtmp=0.d0
+            if(jmin<=jmax)then
             do jtot=jmin,jmax
               angmon_fact=cgc(ja,jb,2*jtot,ma,mb,2*jt)*&
                 cgc(jc,jd,2*jtot,mc,md,2*jt)
@@ -302,6 +300,7 @@ read(5,*)m2b_file
               call fetch_mat(vidx,2,val)
               vtmp=vtmp+val*angmon_fact*phase_ab*phase_cd
             enddo
+          endif
             write(14,'(4I4,F12.8)')a,b,c,d,vtmp
         enddo
       enddo
@@ -340,7 +339,7 @@ enddo
       enddo
     enddo
 
-    write(14,'(I4)')ctr
+    write(14,'(I8)')ctr
 
 
   do jt=-jmax,jmax
@@ -397,13 +396,12 @@ enddo
 
 
             jmin=max(abs(ja-jb)/2,abs(jc-jd)/2)
-            jmax=max(abs(ja+jb)/2,abs(jc+jd)/2)
-            jmin=max(jmin,jt)
-            if(jmin>jmax)cycle
+            jmax=min(abs(ja+jb)/2,abs(jc+jd)/2)
             vtmp=0.d0
+            if(jmin<=jmax)then
             do jtot=jmin,jmax
-              angmon_fact=cgc(jb,ja,2*jtot,-ma,-mb,2*jt)*&
-                cgc(jd,jc,2*jtot,-mc,-md,2*jt)
+              angmon_fact=cgc(ja,jb,2*jtot,ma,mb,2*jt)*&
+                cgc(jc,jd,2*jtot,mc,md,2*jt)
                 phase_ab=1
                 phase_cd=1
 
@@ -428,6 +426,7 @@ enddo
               call fetch_mat(vidx,2,val)
               vtmp=vtmp+val*angmon_fact*phase_ab*phase_cd
             enddo
+          endif
             write(14,'(4I4,F12.8)')a,b,c,d,vtmp
         enddo
       enddo
@@ -465,7 +464,7 @@ enddo
       enddo
     enddo
 
-    write(14,'(I4)')ctr
+    write(14,'(I8)')ctr
 
 
   do jt=-jmax,jmax
@@ -529,14 +528,13 @@ enddo
 
 
             jmin=max(abs(ja-jb)/2,abs(jc-jd)/2)
-            jmax=max(abs(ja+jb)/2,abs(jc+jd)/2)
-            jmin=max(jmin,jt)
-            if(jmin>jmax)cycle
+            jmax=min(abs(ja+jb)/2,abs(jc+jd)/2)
             vtmp=0.d0
+            if(jmin<=jmax)then
             do jtot=jmin,jmax
               if(ph_type==1)then !! hp
-              angmon_fact=cgc(jb,ja,2*jtot,mb,ma,2*jt)*&
-                cgc(jd,jc,2*jtot,md,mc,2*jt)
+              angmon_fact=cgc(ja,jb,2*jtot,ma,mb,2*jt)*&
+                cgc(jc,jd,2*jtot,mc,md,2*jt)
 
               vidx=ishft(bb,35)+ishft(aa,28)+ishft(dd,14)+ishft(cc,7)+jtot
               call fetch_mat(vidx,2,val)
@@ -552,6 +550,7 @@ enddo
               vtmp=vtmp+val*angmon_fact
              endif
             enddo
+          endif
             write(14,'(4I4,F12.8)')a,b,c,d,vtmp
         enddo
       enddo

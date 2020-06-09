@@ -185,7 +185,7 @@ module lanczos
   use mpi_mapping
   use parallel
   implicit none
-  integer,allocatable,public::mbsn(:),mbsp(:)
+  integer*16,allocatable,public::mbsn(:),mbsp(:)
   integer,allocatable,public::mzn(:),mzp(:),iparn(:),iparp(:)
   integer,public:: np_mbasis,nn_mbasis,num_mbasis
   integer,allocatable,public::mbs_row(:,:),mbs_col(:,:)
@@ -241,7 +241,7 @@ contains
      ! call random_number(tmp(bra_min:bra_max))
      ! write(*,*)tmp
     if(iam==0)tmp(1)=1.d0
-      vec(bra_min:bra_max,1)=cmplx(tmp)
+      vec(bra_min:bra_max,1)=dcmplx(tmp)
 
       norm=0.0_dpc
       norm=dot_product(vec(bra_min:bra_max,1),vec(bra_min:bra_max,1))

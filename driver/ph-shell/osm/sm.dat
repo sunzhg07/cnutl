@@ -1,9 +1,9 @@
 np nn
-1,6
+4,0
 number_int
 2
 totj
-1,0
+0,0
 ! 1b
 vm1b.int
 ! 2b
@@ -21,7 +21,7 @@ output
 ! sp file
 msp.dat
 ! num state
-6
+4
 ! max number_it
 200
 

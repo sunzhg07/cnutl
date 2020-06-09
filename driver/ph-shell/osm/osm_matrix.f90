@@ -43,7 +43,8 @@ end subroutine sm_matrix
    real*8 :: moverlap
    integer,intent(in)::a,b
    integer::channel,channel1,channel2,ii,ij
-   integer:: ia,ib,ic,id,ie,ik,i,j,k,l,il
+   integer:: i,j,k,l,il,id,ie,ik
+   integer*16::ia,ib,ic
    real*8:: tmp,tmp1,val,val1
    integer*16:: bra_p,ket_p,bra_n,ket_n,c1,c2,c3,c4,nucbit,ucbit,bit_back
    integer:: bra,ket

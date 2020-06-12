@@ -4,6 +4,7 @@ subroutine ini_files
   use storage
   use m_sp
   use file_list
+  use truncations
   implicit none
   integer :: i,n
   open(file='sm.dat',unit=5)
@@ -33,6 +34,22 @@ subroutine ini_files
   read(5,*)nstate
   read(5,*)
   read(5,*)max_iter_lanc
+  read(5,*)
+  read(5,*)trunc
+  if(trunc)then
+  read(5,*)
+    read(5,*)number_spj_orbs
+    allocate(occ_lim(2,number_spj_orbs))
+    allocate(occ_mask(number_spj_orbs))
+    allocate(obtype(number_spj_orbs))
+    occ_mask=0
+    occ_lim=0
+    obtype=0
+    do i=1,number_spj_orbs
+      read(5,*)occ_lim(1,i),occ_lim(2,i)
+    enddo
+  endif
+
 
   open(unit=7,file=sp_file)
   read(7,*)tot_orbs
@@ -47,7 +64,9 @@ subroutine ini_files
       & all_orbits%ll(i),&
       & all_orbits%jj(i),&
       & all_orbits%mm(i),&
-      & all_orbits%itzp(i)
+      & all_orbits%itzp(i),&
+       all_orbits%jord(i),&
+       all_orbits%occ(i)
     if(all_orbits%itzp(i)==-1)then
       np_orb=np_orb+1
     elseif(all_orbits%itzp(i)==1)then
@@ -58,6 +77,8 @@ subroutine ini_files
 
   enddo
   close(7)
+
+  call setup_occ_mask
   allocate(obs(tot_orbs))
   obs=0
   n=0

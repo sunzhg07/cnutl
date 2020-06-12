@@ -4,86 +4,91 @@ subroutine sm_basis
   use lanczos
   use constants
   use m_sp
+  use truncations
   implicit none
-  integer*16 :: low, high,one,tp
-  integer*16:: u,ur,nh,no
+  integer*16 :: low_long, high_long,one_long,tp_long
+  integer*16:: u_long,ur_long,nh_long,no_long
   integer :: i,j,a,b,tmp,tmp1
   integer:: bra,ket,bra_start,bra_end,ket_start,ket_end
   integer:: bra_max,bra_min,ket_min,ket_max
   integer:: nv,nvec,nvres
 
-  one=1
+  one_long=1
   if(np==0)then 
     write(*,*) 'number protons 0'
     np_mbasis=1
     allocate(mbsp(1))
     allocate(mzp(1))
     allocate(iparp(1))
+    allocate(mbsp_valid(1))
     mbsp(1)=0
     mzp(1)=0
     iparp(1)=0
+    mbsp_valid(1)=1
   else
-    tp=0
-    low=0
+    tp_long=0
+    low_long=0
     do i=1,np
-      one=1
-      tp=ishft(one,i-1)
-      low=low+tp
+      one_long=1
+      tp_long=ishft(one_long,i-1)
+      low_long=low_long+tp_long
     enddo
-    high=ishft(low,np_orb-np)
-    !write(*,*)low,high
-    u=low
+    high_long=ishft(low_long,np_orb-np)
+    !write(*,*)low_long,high_long
+    u_long=low_long
     np_mbasis=1
-    do while((u>=low) .and.( u<high))
-      ur=and(u , -u)
-      nh=u+ur
-      no=xor(u,nh)
-      no=no/ur
-      no=ishft(no,-2)
-      u=or(nh,no)
+    do while((u_long>=low_long) .and.( u_long<high_long))
+      ur_long=and(u_long , -u_long)
+      nh_long=u_long+ur_long
+      no_long=xor(u_long,nh_long)
+      no_long=no_long/ur_long
+      no_long=ishft(no_long,-2)
+      u_long=or(nh_long,no_long)
       np_mbasis=np_mbasis+1
-      !   call decode(u)
+      !   call decode(u_long)
     enddo
     !write(*,*)'proton basis',np_mbasis
-    !call decode(low)
-    !call decode(high)
+    !call decode(low_long)
+    !call decode(high_long)
 
     allocate(mbsp(np_mbasis))
     allocate(mzp(np_mbasis)); mzp=0
     allocate(iparp(np_mbasis)); iparp=0
+    allocate(mbsp_valid(np_mbasis)); mbsp_valid=1
     np_mbasis=1
-    tp=0
-    low=0
+    tp_long=0
+    low_long=0
     do i=1,np
-      one=1
-      tp=ishft(one,i-1)
-      low=low+tp
+      one_long=1
+      tp_long=ishft(one_long,i-1)
+      low_long=low_long+tp_long
     enddo
-    high=ishft(low,np_orb-np)
-    mbsp(1)=low
-    u=low
-    !write(*,*)low,high
+    high_long=ishft(low_long,np_orb-np)
+    mbsp(1)=low_long
+    u_long=low_long
+    !write(*,*)low_long,high_long
 
-    do while((u>=low) .and.( u<high))
-      ur=and(u,-u)
-      nh=u+ur
-      no=xor(u,nh)
-      no=no/ur
-      no=ishft(no,-2)
-      u=or(nh, no)
+    do while((u_long>=low_long) .and.( u_long<high_long))
+      ur_long=and(u_long,-u_long)
+      nh_long=u_long+ur_long
+      no_long=xor(u_long,nh_long)
+      no_long=no_long/ur_long
+      no_long=ishft(no_long,-2)
+      u_long=or(nh_long, no_long)
       np_mbasis=np_mbasis+1
-      mbsp(np_mbasis)=u
+      mbsp(np_mbasis)=u_long
     enddo
     do i=1,np_mbasis
-      tp=mbsp(i)
+      tp_long=mbsp(i)
       tmp=0
       tmp1=0
       do j=1,np_orb
-        if(and(tp,one) ==one)then
+        if(and(tp_long,one_long) ==one_long)then
           tmp=tmp+all_orbits%mm(j+nn_orb)
           tmp1=tmp1+all_orbits%ll(j+nn_orb)
+          if(all_orbits%occ(j+nn_orb)==0)mbsp_valid(i)=0
         endif
-        tp=ishft(tp,-1)
+        tp_long=ishft(tp_long,-1)
       enddo
       mzp(i)=tmp
       iparp(i)=tmp1
@@ -94,76 +99,79 @@ subroutine sm_basis
 
   if(iam==0)write(*,*)'number proton basis', np_mbasis
 
-  tp=0
-  low=0
+  tp_long=0
+  low_long=0
   if(nn==0)then 
     write(*,*) 'number protons 0'
     nn_mbasis=1
     allocate(mbsn(1))
     allocate(mzn(1)); mzn=0
     allocate(iparn(1)); iparn=0
+    allocate(mbsn_valid(1));mbsn_valid(1)=1
     mbsn(1)=0
   else
     do i=1,nn
-      one=1
-      tp=ishft(one,i-1)
-      low=low+tp
+      one_long=1
+      tp_long=ishft(one_long,i-1)
+      low_long=low_long+tp_long
     enddo
-    high=ishft(low,nn_orb-nn)
+    high_long=ishft(low_long,nn_orb-nn)
 
-    u=low
+    u_long=low_long
     nn_mbasis=1
-    do while((u>=low) .and.( u<high))
-      ur=and(u,-u)
-      nh=u+ur
-      no=xor(u,nh)
-      no=no/ur
-      no=ishft(no,-2)
-      u=or(nh, no)
+    do while((u_long>=low_long) .and.( u_long<high_long))
+      ur_long=and(u_long,-u_long)
+      nh_long=u_long+ur_long
+      no_long=xor(u_long,nh_long)
+      no_long=no_long/ur_long
+      no_long=ishft(no_long,-2)
+      u_long=or(nh_long, no_long)
       nn_mbasis=nn_mbasis+1
-      ! call decode(u)
+      ! call decode(u_long)
     enddo
-    !call decode(low)
-    !call decode(high)
+    !call decode(low_long)
+    !call decode(high_long)
 
     allocate(mbsn(nn_mbasis))
     allocate(mzn(nn_mbasis)); mzn=0
     allocate(iparn(nn_mbasis)); iparn=0
+    allocate(mbsn_valid(nn_mbasis)); mbsn_valid=1
 
-    tp=0
-    low=0
+    tp_long=0
+    low_long=0
     do i=1,nn
-      one=1
-      tp=ishft(one,i-1)
-      low=low+tp
+      one_long=1
+      tp_long=ishft(one_long,i-1)
+      low_long=low_long+tp_long
     enddo
-    high=ishft(low,nn_orb-nn)
+    high_long=ishft(low_long,nn_orb-nn)
 
-    u=low
+    u_long=low_long
     nn_mbasis=1
-    mbsn(1)=low
-    do while((u>=low) .and.( u<high))
-      ur=and(u,-u)
-      nh=u+ur
-      no=xor(u,nh)
-      no=no/ur
-      no=ishft(no,-2)
-      u=or(nh,no)
+    mbsn(1)=low_long
+    do while((u_long>=low_long) .and.( u_long<high_long))
+      ur_long=and(u_long,-u_long)
+      nh_long=u_long+ur_long
+      no_long=xor(u_long,nh_long)
+      no_long=no_long/ur_long
+      no_long=ishft(no_long,-2)
+      u_long=or(nh_long,no_long)
       nn_mbasis=nn_mbasis+1
-      mbsn(nn_mbasis)=u
+      mbsn(nn_mbasis)=u_long
 
     enddo
 
     do i=1,nn_mbasis
-      tp=mbsn(i)
+      tp_long=mbsn(i)
       tmp=0
       tmp1=0
       do j=1,nn_orb
-        if(and(tp,one) ==one)then
+        if(and(tp_long,one_long) ==one_long)then
           tmp=tmp+all_orbits%mm(j)
           tmp1=tmp1+all_orbits%ll(j)
+          if(all_orbits%occ(j)==0)mbsn_valid(i)=0
         endif
-        tp=ishft(tp,-1)
+        tp_long=ishft(tp_long,-1)
       enddo
       mzn(i)=tmp
       iparn(i)=tmp1
@@ -181,8 +189,11 @@ subroutine sm_basis
   num_mbasis=0
   do a=1,np_mbasis
     do b=1,nn_mbasis
-      if(mzp(a)+mzn(b)==jtot .and. mod(iparp(a)+iparn(b),2)==nu_parity)then
+      if(mzp(a)+mzn(b)==jtot .and. mod(iparp(a)+iparn(b),2)==nu_parity&
+        .and. mbsp_valid(a)*mbsn_valid(b)/=0 )then
+        if(trunc .and. check_occ(a,b))then
         num_mbasis=num_mbasis+1
+      endif
       endif
     enddo
   enddo
@@ -241,13 +252,17 @@ if(iam==0)write(*,*)nv,num_mbasis
 
   do a=1,np_mbasis
     do b=1,nn_mbasis
-      if(mzp(a)+mzn(b)==jtot .and. mod(iparp(a)+iparn(b),2)==nu_parity)then
+      if(mzp(a)+mzn(b)==jtot .and. mod(iparp(a)+iparn(b),2)==nu_parity&
+        .and.mbsp_valid(a)*mbsn_valid(b)/=0)then
+
+        if(trunc .and. check_occ(a,b))then
         num_mbasis=num_mbasis+1
         if(num_mbasis>bra_max)cycle
         if(num_mbasis<bra_min)cycle
 
         mbs_row(num_mbasis,1)=a
         mbs_row(num_mbasis,2)=b
+      endif
       endif
     enddo
   enddo
@@ -258,7 +273,8 @@ if(iam==0)write(*,*)nv,num_mbasis
    num_mbasis=0
   do a=1,np_mbasis
     do b=1,nn_mbasis
-      if(mzp(a)+mzn(b)==jtot .and. mod(iparp(a)+iparn(b),2)==nu_parity)then
+      if(mzp(a)+mzn(b)==jtot .and. mod(iparp(a)+iparn(b),2)==nu_parity .and.&
+        mbsp_valid(a)*mbsn_valid(b)/=0)then
         num_mbasis=num_mbasis+1
         if(num_mbasis>ket_max)cycle
         if(num_mbasis<ket_min)cycle

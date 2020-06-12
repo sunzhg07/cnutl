@@ -60,7 +60,7 @@ module m_sp
 
   TYPE, PUBLIC :: single_particle_descript
      INTEGER :: total_orbits
-     INTEGER, DIMENSION(:), POINTER :: nn, ll, jj, mm, itzp, nshell
+     INTEGER, DIMENSION(:), POINTER :: nn, ll, jj, mm, itzp, nshell,occ,jord
   END TYPE single_particle_descript
   type(single_particle_descript) all_orbits
 CONTAINS
@@ -80,6 +80,10 @@ CONTAINS
     ALLOCATE(this_array%itzp(n))
     IF (ASSOCIATED (this_array%nshell) ) DEALLOCATE(this_array%nshell)
     ALLOCATE(this_array%nshell(n))
+    IF (ASSOCIATED (this_array%occ) ) DEALLOCATE(this_array%occ)
+    ALLOCATE(this_array%occ(n))
+    IF (ASSOCIATED (this_array%jord) ) DEALLOCATE(this_array%jord)
+    ALLOCATE(this_array%jord(n))
     !           blank all characters and zero all other values
     DO i= 1, n
        this_array%nn(i)=0
@@ -88,6 +92,8 @@ CONTAINS
        this_array%jj(i)=0
        this_array%nshell(i)=0
        this_array%itzp(i)=0
+       this_array%occ(i)=0
+       this_array%jord(i)=0
     ENDDO
 
   END SUBROUTINE allocate_sp_array
@@ -98,6 +104,8 @@ CONTAINS
     DEALLOCATE(this_array%jj) ;DEALLOCATE(this_array%itzp)
     DEALLOCATE(this_array%nshell)
     DEALLOCATE(this_array%mm)
+    DEALLOCATE(this_array%occ)
+    DEALLOCATE(this_array%jord)
   END SUBROUTINE deallocate_sp_array
 
 
@@ -186,7 +194,7 @@ module lanczos
   use parallel
   implicit none
   integer*16,allocatable,public::mbsn(:),mbsp(:)
-  integer,allocatable,public::mzn(:),mzp(:),iparn(:),iparp(:)
+  integer,allocatable,public::mzn(:),mzp(:),iparn(:),iparp(:),mbsp_valid(:), mbsn_valid(:)
   integer,public:: np_mbasis,nn_mbasis,num_mbasis
   integer,allocatable,public::mbs_row(:,:),mbs_col(:,:)
   complex*16,dimension(:,:),allocatable:: haml,cvec,cvecl,vec,and_haml,and_haml2,and_vec,and_lvec
@@ -568,6 +576,77 @@ module m_configurations
 
 
 end module m_configurations
+
+module truncations
+  use  m_sp
+  use lanczos
+  implicit none
+  integer:: number_spj_orbs
+  integer,allocatable::occ_lim(:,:)
+  integer*16,allocatable:: occ_mask(:),obtype(:)
+  logical:: trunc
+  contains
+    subroutine setup_occ_mask
+      implicit none
+      integer:: i,j,bit_ahead,obsize,itz
+      integer*16:: one,bit_mask
+      integer:: it_tmp,ob_start
+      bit_ahead=0
+
+      one=1
+      do i=1,number_spj_orbs
+        obsize=0
+        bit_mask=0
+        bit_ahead=0
+        do j=1,all_orbits%total_orbits
+          if(all_orbits%jord(j)/=i)then
+            bit_ahead=bit_ahead+1
+          else
+            ob_start=j
+            obsize=all_orbits%jj(j)+1
+            it_tmp=all_orbits%itzp(j)
+            obtype(i)=it_tmp
+            exit
+          endif
+        enddo
+          bit_mask=2**obsize-1
+
+        if(it_tmp==-1)then
+          occ_mask(i)=ishft(bit_mask,bit_ahead-nn_orb)
+        else
+          occ_mask(i)=ishft(bit_mask,bit_ahead)
+        endif
+        write(*,*)obsize,ob_start,bit_ahead,popcnt(occ_mask(i)),occ_mask(i),it_tmp
+
+
+      enddo
+      write(*,*)'number jj orbs:', number_spj_orbs
+      write(*,*)occ_mask
+
+    end subroutine setup_occ_mask
+
+    logical function check_occ(a,b)
+      integer,intent(in):: a,b
+      integer*16:: tp_long
+      integer:: i,n
+      check_occ=.true.
+      do i=1,number_spj_orbs
+        if(obtype(i)==-1)then
+          tp_long=mbsp(a)
+        else
+          tp_long=mbsn(b)
+        endif
+          n=popcnt(iand(tp_long,occ_mask(i)))
+          if(n<occ_lim(1,i).or. n> occ_lim(2,i))then       
+            check_occ=.FALSE.
+            exit
+          endif
+      enddo
+      return
+      end function check_occ
+
+
+end module
 
 
 

@@ -15,6 +15,7 @@ program main
   logical:: hermit
   integer:: iph
   integer:: ph_type
+  integer:: order_tmp,it_tmp
   integer:: phase_ab,phase_cd
   character(len=20):: ctmp
   character(len=100):: jjsp_file ,&
@@ -100,14 +101,25 @@ program main
   read(5,*)
   read(5,*)msp_file
   open(unit=15,file=msp_file)
+  it_tmp=msp%itzp(1)
+  order_tmp=msp%jorder(1)
+  j=1
   do i=1,ctr
      ctmp='particle'
     if(msp%obst(i)==-1)ctmp='hole'
-    write(15,'(6I4,2X,A20)')i,msp%nn(i),&
+    if(msp%jorder(i)/=order_tmp .or. msp%itzp(i)/=it_tmp)then
+      j=j+1
+  it_tmp=msp%itzp(i)
+  order_tmp=msp%jorder(i)
+    endif
+
+    write(15,'(7I4,2X,A2,1X,A20)')i,msp%nn(i),&
       msp%ll(i),&
       msp%jj(i),&
       msp%jz(i),&
       msp%itzp(i),&
+      j,&
+      '1',&
       ctmp
   enddo
 

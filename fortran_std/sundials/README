@@ -1,0 +1,13 @@
+sundials is a package to solve the ode eqtuions.
+The package is on github
+https://github.com/LLNL/sundials
+
+To install
+1. Download the code
+2. to compile:
+      make a build directory in th top dir of sundials src,and tell cmake use "-B build"
+      provide your install destination with CMAKE_INSTALL_PREFIX
+    CC=gcc cmake -B build -S . -D CMAKE_BUILD_TYPE=release -D BUILD_FORTRAN_MODULE_INTERFACE=on -D CMAKE_INSTALL_PREFIX=/ccs/proj/nph123/sundials/inst_dir/gnu_sundials
+    3. to use
+
+    gfortran -Og -g -ftrapv -fcheck=all -fbacktrace   -I/usr/local/Cellar/sundials/fortran -L/usr/local/Cellar/sundials/lib -lsundials_fcvode_mod -lsundials_cvode -lm -Wl,-rpath,/usr/local/Cellar/sundials/lib sundials.f90
